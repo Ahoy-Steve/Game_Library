@@ -1,0 +1,18 @@
+bin/
+obj/
+.vs/
+.idea/
+*.user
+test-results/
+score.json
+.official/
+.sq/
+
+# Lab 10: keys for your API client live here, never in a committed file
+.env
+http-client.private.env.json
+
+# Lab 11: a database file is data, not source. The migrations that build it are the source.
+*.db
+*.db-shm
+*.db-wal
