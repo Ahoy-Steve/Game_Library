@@ -4,9 +4,9 @@
 
 > **Edit this section in session 1.** It's your first commit.
 >
-> **Theme:** _which of the catalogue themes you picked_
-> **In one sentence:** _what your app will do by January_
-> **Route:** _guided or project_
+> **Theme:** Game Library
+> **In one sentence:** A personal game library that tracks what I own, what I actually played and for how long
+> **Route:** Guided
 >
 > Don't write your name or your avatar here. The scoreboard is anonymous, and this file is how people would find out.
 
