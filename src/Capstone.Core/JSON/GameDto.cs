@@ -2,10 +2,6 @@ using Capstone.Core.Model;
 
 namespace Capstone.Core.Json;
 
-/// <summary>
-/// The shape of a game on disk. Everything is nullable on purpose: JSON from outside
-/// can be missing anything, and the mapper decides what is acceptable.
-/// </summary>
 public sealed record GameDto(
     string? Id,
     string? Title,
@@ -16,4 +12,8 @@ public sealed record GameDto(
     Status? Status,
     double? HoursPlayed,
     decimal? PricePaid,
-    int? Rating);
+    int? Rating,
+    string? Shelf = null,
+    string? Store = null,
+    string? Service = null,
+    DateOnly? LeavesOn = null);

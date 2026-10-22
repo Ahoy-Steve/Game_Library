@@ -2,7 +2,7 @@ using SharpQuest.Contracts;
 
 namespace Capstone.Core.Model;
 
-public sealed class Game : IItem, IDescribable
+public abstract class Game : IItem, IDescribable
 {
     public const int FirstReleaseYear = 1950;
     public const int LastReleaseYear = 2100;
@@ -91,12 +91,12 @@ public sealed class Game : IItem, IDescribable
     }
 
     public string DisplayName => Title;
-
-    public string Describe()
+    protected string Card()
     {
         var rating = Rating is { } r ? $"{r}/10" : "unrated";
         return $"{Title} · {Platform} · {Genre} · {Status} · {HoursPlayed:0.#} h · {rating}";
     }
+    public abstract string Describe();
 
     public override string ToString() => Describe();
 }

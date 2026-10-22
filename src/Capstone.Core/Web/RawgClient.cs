@@ -5,8 +5,7 @@ using System.Text.Json.Serialization;
 using Capstone.Core.Model;
 
 namespace Capstone.Core.Web;
-
-/// <summary>
+ /// <summary>
 /// Reads one game's facts from https://rawg.io. Two things are passed in, never created or hard-coded here:
 /// the HttpClient (one for the whole program, not one per call) and the API key
 /// (read from the RAWG_API_KEY environment variable by the caller, never written in source).
@@ -36,7 +35,8 @@ public sealed class RawgClient(HttpClient http, string apiKey)
             : (int?)null;
         if (year is null) return null; // a game without a release date can't become one of ours
 
-        return new Game
+        // RAWG doesn't know how YOU own it, so this starts as a download from an unknown store.
+        return new DigitalGame
         {
             Id = $"rawg-{body.Id}",
             Title = body.Name,
@@ -45,6 +45,7 @@ public sealed class RawgClient(HttpClient http, string apiKey)
             Genre = body.Genres?.FirstOrDefault()?.Name ?? "Unknown",
             ReleaseYear = year.Value,
             Status = Status.Backlog,
+            Store = "Unknown",
         };
     }
 

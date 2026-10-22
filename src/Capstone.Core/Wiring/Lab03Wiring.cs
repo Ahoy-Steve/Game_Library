@@ -26,7 +26,7 @@ public sealed class Lab03Wiring : ILab03Wiring
         var index = Math.Abs(seed);
         var (title, developer, genre) = Samples[index % Samples.Length];
 
-        return new Game
+        return new DigitalGame
         {
             Id = $"gm-{seed:D3}",
             Title = title,
@@ -38,6 +38,7 @@ public sealed class Lab03Wiring : ILab03Wiring
             HoursPlayed = index % 40,
             PricePaid = 10m + index % 50,
             Rating = index % 3 == 0 ? null : 1 + index % 10,
+            Store = "Steam",
         };
     }
     

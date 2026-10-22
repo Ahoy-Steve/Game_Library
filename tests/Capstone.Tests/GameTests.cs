@@ -12,7 +12,7 @@ public class GameTests
         Platform platform = Platform.PC,
         int releaseYear = 2020)
     {
-        return new Game
+        return new DigitalGame
         {
             Id = id,
             Title = title,
@@ -21,6 +21,7 @@ public class GameTests
             Genre = "Roguelike",
             ReleaseYear = releaseYear,
             Status = Status.Backlog,
+            Store = "Steam",
         };
     }
 

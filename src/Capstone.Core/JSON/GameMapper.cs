@@ -40,9 +40,20 @@ public sealed class GameMapper : IItemMapper
         return dto is null ? null : FromDto(dto);
     }
 
-    public static GameDto ToDto(Game g) =>
-        new(g.Id, g.Title, g.DeveloperName, g.Platform, g.Genre, g.ReleaseYear,
+    public static GameDto ToDto(Game g)
+    {
+        var dto = new GameDto(g.Id, g.Title, g.DeveloperName, g.Platform, g.Genre, g.ReleaseYear,
             g.Status, g.HoursPlayed, g.PricePaid, g.Rating);
+
+        // Each kind writes down the one thing that is its own.
+        return g switch
+        {
+            PhysicalGame p => dto with { Shelf = p.Shelf },
+            SubscriptionGame s => dto with { Service = s.Service, LeavesOn = s.LeavesOn },
+            DigitalGame d => dto with { Store = d.Store },
+            _ => dto,
+        };
+    }
 
     /// <summary>Null when the DTO is missing something a game cannot exist without, or holds a value out of range.</summary>
     public static Game? FromDto(GameDto dto)
@@ -64,7 +75,50 @@ public sealed class GameMapper : IItemMapper
         // Null rating means "not rated"; anything else must be on the scale.
         if (dto.Rating is < Game.MinRating or > Game.MaxRating) return null;
 
-        return new Game
+        //  Wherever we used to write "new Game", we now pick one.
+        // A blank shelf or service is not "absent", it's invalid, so those return null too.
+        if (dto.Shelf is not null)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Shelf)) return null;
+            return new PhysicalGame
+            {
+                Id = dto.Id,
+                Title = dto.Title,
+                DeveloperName = dto.DeveloperName,
+                Platform = platform,
+                Genre = dto.Genre,
+                ReleaseYear = year,
+                Status = status,
+                HoursPlayed = hours,
+                PricePaid = price,
+                Rating = dto.Rating,
+                Shelf = dto.Shelf,
+            };
+        }
+
+        if (dto.Service is not null)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Service)) return null;
+            return new SubscriptionGame
+            {
+                Id = dto.Id,
+                Title = dto.Title,
+                DeveloperName = dto.DeveloperName,
+                Platform = platform,
+                Genre = dto.Genre,
+                ReleaseYear = year,
+                Status = status,
+                HoursPlayed = hours,
+                PricePaid = price,
+                Rating = dto.Rating,
+                Service = dto.Service,
+                LeavesOn = dto.LeavesOn,
+            };
+        }
+
+        // No shelf, no service: a plain download. (Older files have neither, so they load as digital.)
+        if (dto.Store is not null && string.IsNullOrWhiteSpace(dto.Store)) return null;
+        return new DigitalGame
         {
             Id = dto.Id,
             Title = dto.Title,
@@ -76,6 +130,7 @@ public sealed class GameMapper : IItemMapper
             HoursPlayed = hours,
             PricePaid = price,
             Rating = dto.Rating,
+            Store = dto.Store ?? "Unknown",
         };
     }
 }
