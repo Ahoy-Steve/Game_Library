@@ -8,10 +8,6 @@ public sealed class Game : IItem, IDescribable
     public const int LastReleaseYear = 2100;
     public const int MinRating = 1;
     public const int MaxRating = 10;
-
-    // Validation in the setter needs a backing field: the property checks, the field stores.
-    // (C# 14 on .NET 10 can write this without the private field, using the `field` keyword.
-    //  This course builds with C# 13 so the same code compiles on the lab PCs' .NET 9.)
     private readonly string _id = "";
     private readonly string _title = "";
     private readonly string _developerName = "";
