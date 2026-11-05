@@ -1,5 +1,6 @@
 using System.Collections;
 using SharpQuest.Contracts;
+using Capstone.Core.Model;
 
 namespace Capstone.Core.Storage;
 
@@ -9,22 +10,26 @@ namespace Capstone.Core.Storage;
 /// </summary>
 public sealed class GameLibrary : IItemStore, IEnumerable<IItem>
 {
-    //IItem change to Game
-    private readonly List<IItem> _ordered = [];
-    private readonly Dictionary<string, IItem> _byId = new(StringComparer.Ordinal);
+    private readonly List<Game> _ordered = [];
+    private readonly Dictionary<string, Game> _byId = new(StringComparer.Ordinal);
 
     public int Count => _ordered.Count;
+    public event Action<IItem>? ItemAdded;
 
     // ---- Lab 02: the store ------------------------------------------------------------------
 
     public void Add(IItem item)
     {
         ArgumentNullException.ThrowIfNull(item);
-
-        if (!_byId.TryAdd(item.Id, item))
+        
+        if(item is not Game game)
+            throw new ArgumentException($"This library only holds games, not {item.GetType().Name}.", nameof(item));
+        
+        if (!_byId.TryAdd(game.Id, game))
             throw new ArgumentException($"A game with Id '{item.Id}' is already in the library.", nameof(item));
 
-        _ordered.Add(item);
+        _ordered.Add(game);
+        ItemAdded?.Invoke(game);
     }
 
     public IItem? FindById(string id) => id is null ? null : _byId.GetValueOrDefault(id);
@@ -44,7 +49,7 @@ public sealed class GameLibrary : IItemStore, IEnumerable<IItem>
     // ---- Lab 05: the collection -------------------------------------------------------------
 
     /// <summary>The game at this position, counting from the first one added.</summary>
-    public IItem this[int index]
+    public Game this[int index]
     {
         get
         {
@@ -57,7 +62,7 @@ public sealed class GameLibrary : IItemStore, IEnumerable<IItem>
     }
 
     /// <summary>The game with this Id. No such Id is an answer, not a bug: it returns null.</summary>
-    public IItem? this[string id] => id is null ? null : _byId.GetValueOrDefault(id);
+    public Game? this[string id] => id is null ? null : _byId.GetValueOrDefault(id);
     
     public IEnumerator<IItem> GetEnumerator()
     {
@@ -68,7 +73,7 @@ public sealed class GameLibrary : IItemStore, IEnumerable<IItem>
     // The old, untyped one. foreach never calls it, but the interface demands it.
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     
-    public IEnumerable<IItem> Matching(string text)
+    public IEnumerable<Game> Matching(string text)
     {
         
         ArgumentNullException.ThrowIfNull(text);
@@ -76,7 +81,7 @@ public sealed class GameLibrary : IItemStore, IEnumerable<IItem>
         return MatchingIterator(text);
     }
 
-    private IEnumerable<IItem> MatchingIterator(string text)
+    private IEnumerable<Game> MatchingIterator(string text)
     {
         foreach (var item in _ordered)
         {

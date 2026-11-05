@@ -3,6 +3,8 @@ using Capstone.Core.Json;
 using Capstone.Core.Model;
 using Capstone.Core.Storage;
 using Capstone.Core.Web;
+using Capstone.Core.Collections;
+using Capstone.Core.Events;
 
 // Lab 02: load the game library from JSON, skip what's invalid, show what's left.
 // dotnet run --project src/Capstone.App                         → local file only
@@ -10,6 +12,15 @@ using Capstone.Core.Web;
 //   (needs the free key in the RAWG_API_KEY environment variable. Never put it in code or in the JSON.)
 
 var library = new GameLibrary();
+//Should be in backlog
+var backlog = new BacklogCounter();
+var recentlyAdded = new RecentlyUsed<Game>(3);
+library.ItemAdded += backlog.Handle;
+library.ItemAdded += item =>
+{
+    if (item is Game game) recentlyAdded.Push(game);
+}; 
+
 var path = Path.Combine(AppContext.BaseDirectory, "data", "games.json");
 
 using (var doc = JsonDocument.Parse(File.ReadAllText(path)))
@@ -31,6 +42,14 @@ foreach (var item in library.All())
     Console.WriteLine($"  {(item as IDescribable)?.Describe() ?? item.DisplayName}");
 
 Console.WriteLine();
+
+Console.WriteLine($"Backlog: {backlog.Games} games, {backlog.MoneyTiedUp:0.##} spent on them");
+Console.WriteLine("Last added:");
+foreach (var game in recentlyAdded.Items)
+    Console.WriteLine($"  {game.Title}");
+
+Console.WriteLine();
+
 Console.WriteLine("By status:");
 foreach (var status in Enum.GetValues<Status>())
     Console.WriteLine($"  {status,-10} {library.All().OfType<Game>().Count(g => g.Status == status)}");
